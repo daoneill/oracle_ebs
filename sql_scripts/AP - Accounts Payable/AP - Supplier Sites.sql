@@ -1,0 +1,88 @@
+SELECT  pvs.address_line1, 
+        pvs.address_line2, 
+        pvs.address_line3,
+        pvs.address_line4, 
+        pvs.offset_tax_flag allow_offset_taxes,
+        pvs.allow_awt_flag allow_withholding_tax, 
+        pvs.attribute1,
+        pvs.attribute2, 
+        pvs.attribute3,
+        pvs.attribute4, 
+        pvs.attribute5,
+        pvs.attribute6, 
+        pvs.attribute7, 
+        pvs.attribute8, 
+        pvs.attribute9,
+        pvs.attribute10, 
+        pvs.attribute11, 
+        pvs.attribute12, 
+        pvs.attribute13,
+        pvs.attribute14, 
+        pvs.attribute15,
+        pvs.address_lines_alt alternative_site_address,
+        pvs.vendor_site_code_alt alternative_site_name,
+        hr_bill.description bill_to_location,
+        ft.territory_short_name country, 
+        fu_cr.user_name created_by,
+        pvs.creation_date, 
+        pvs.email_address, 
+        pvs.fax fax_number,
+        pvs.hold_all_payments_flag hold_payments_flag,
+        pvs.hold_future_payments_flag hold_unmatched_invoices,
+        pvs.hold_unmatched_invoices_flag hold_invalidated_invoices,
+        pvs.inactive_date inactive_date,
+        pvs.invoice_currency_code invoice_currency,
+        pvs.match_option invoice_match_option,
+        pvs.vat_code invoice_tax_code, pvs.last_update_date,
+        fu_upd.user_name last_updated_by,
+        pvs.exclusive_payment_flag pay_alone_flag,
+        pvs.pay_group_lookup_code paygroup, 
+        pvs.pay_site_flag pay_site_use,
+        pvs.payment_currency_code payment_currency,
+        alc.displayed_field payment_method, 
+        att.NAME payment_terms,
+        pvs.phone phone_number,
+        pvs.purchasing_site_flag purchasing_site_use, 
+        pvs.remittance_email,
+        hr_ship.description ship_to, 
+        pv.vendor_name supplier_name,
+        pvs.supplier_notif_method supplier_notification_method,
+        TO_NUMBER (pv.segment1) supplier_number,
+        pvs.vendor_site_code supplier_site_name, 
+        pvs.terms_date_basis,
+        aag.NAME withholding_tax_group, 
+        pv.vendor_id, 
+        pvs.vendor_site_id,
+        aba.bank_account_name,
+        aba.bank_account_num,
+        abb.bank_name,
+        abb.bank_branch_name,
+        abb.bank_num,
+        pvs.province
+FROM    po_vendor_sites         pvs,
+        po_vendors              pv,
+        hr_locations            hr_bill,
+        hr_locations            hr_ship,
+        fnd_territories_tl      ft,
+        fnd_user                fu_cr,
+        fnd_user                fu_upd,
+        ap_terms_tl             att,
+        ap_lookup_codes         alc,
+        ap_awt_groups           aag,
+        ap_bank_account_uses    abau,
+        ap_bank_accounts        aba,
+        ap_bank_branches        abb
+WHERE   pvs.vendor_id = pv.vendor_id
+AND     pvs.bill_to_location_id = hr_bill.location_id(+)
+AND     pvs.ship_to_location_id = hr_ship.location_id(+)
+AND     pvs.country = ft.territory_short_name(+)
+AND     pvs.created_by = fu_cr.user_id(+)
+AND     pvs.last_updated_by = fu_upd.user_id(+)
+AND     alc.lookup_type(+) = 'PAYMENT METHOD'
+AND     alc.lookup_code(+) = pvs.payment_method_lookup_code
+AND     pvs.terms_id = att.term_id(+)
+AND     pvs.awt_group_id = aag.GROUP_ID(+)
+and     pvs.vendor_site_id=abau.vendor_site_id(+)
+and     abau.external_bank_account_id=aba.bank_account_id (+)
+and     aba.bank_branch_id=abb.bank_branch_id (+)
+and     NVL(abau.end_date, SYSDATE + 1) > sysdate;

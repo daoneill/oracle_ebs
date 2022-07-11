@@ -1,0 +1,22 @@
+SELECT  aerh.invoice_num,
+        teb.distribution_line_number,
+        teb.overnight_rate_num number_of_overnights,
+        teb.conference_rate_num number_of_conferences,
+        teb.ten_hour_rate_num number_of_ten_hours,
+        teb.five_hour_rate_num number_of_five_hours,
+        teb.mileage_distance,
+        teb.mileage_rate_type,
+        teb.lunch_deductions,
+        teb.monetary_deductions,
+        teb.mileage_rate,
+        teb.overnight_rate,
+        teb.conference_rate,
+        teb.ten_hour_rate,
+        teb.five_hour_rate,
+        teb.subsistence_rate_type,
+        teb.spanning_claim_row,
+        teb.distribution_reordered,
+        aerh.report_header_id
+FROM    ts_expense_breakdown teb,
+        ap_expense_report_headers aerh
+WHERE   teb.expense_report_id = aerh.report_header_id;
